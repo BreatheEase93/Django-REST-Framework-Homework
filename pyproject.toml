@@ -1,0 +1,68 @@
+[project]
+name = "django-rest-framework-homework"
+version = "0.1.0"
+package-mode = false
+description = ""
+authors = [
+    {name = "Dmitry globa", email = "dima.globa2015@yandex.ru"}
+]
+readme = "README.md"
+requires-python = ">=3.14"
+
+dependencies = [
+    "django (>=6.0.5,<7.0.0)",
+    "djangorestframework (>=3.17.1,<4.0.0)",
+    "python-dotenv (>=1.0.1,<2.0.0)",
+    "psycopg2-binary (>=2.9.10,<3.0.0)",
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.10.0",
+    "django-stubs>=5.0.0",
+    "djangorestframework-stubs>=3.15.0",
+    "ruff>=0.4.0"
+]
+
+[tool.mypy]
+# Подключаем плагины типизации для Django и DRF
+plugins = [
+    "mypy_django_plugin.main",
+    "mypy_drf_plugin.main"
+]
+
+# Базовые настройки строгости проверки типов
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+check_untyped_defs = true
+
+# Пропускаем проверку сторонних библиотек без аннотаций типов
+ignore_missing_imports = true
+
+[tool.django-stubs]
+# Указываем mypy, где искать конфигурацию Django
+django_settings_module = "config.settings"
+
+[tool.ruff]
+# Целевая версия Python
+target-version = "py312"
+line-length = 88
+
+[tool.ruff.lint]
+# Какие правила проверять: 
+# E, F — базовые ошибки и стиль (Pyflakes/pycodestyle)
+# I — сортировка импортов (isort)
+# N — именование переменных (pep8-naming)
+# DJ — специфичные правила для Django
+select = ["E", "F", "I", "N", "DJ"]
+ignore = []
+
+[tool.ruff.format]
+# Настройки форматирования текста
+quote-style = "double"
+indent-style = "space"
