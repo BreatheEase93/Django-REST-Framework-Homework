@@ -12,7 +12,7 @@ class UserCreateAPIView(generics.CreateAPIView):
 
 
 class UserListAPIView(generics.ListAPIView):
-    """Контроллер для просмотра списка всех пользователей"""
+    """Контроллер для просмотра списка всех пользователя"""
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
