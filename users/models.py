@@ -32,28 +32,12 @@ class CustomUser(AbstractUser):
 
     # Отключаем дефолтное поле username, так как логином будет email
     username = None
-    
-    email = models.EmailField(
-        unique=True, 
-        verbose_name="Электронная почта"
-    )
-    phone = models.CharField(
-        max_length=20, 
-        blank=True, 
-        null=True, 
-        verbose_name="Номер телефона"
-    )
-    city = models.CharField(
-        max_length=100, 
-        blank=True, 
-        null=True, 
-        verbose_name="Город"
-    )
+
+    email = models.EmailField(unique=True, verbose_name="Электронная почта")
+    phone = models.CharField(max_length=20, blank=True, verbose_name="Номер телефона")
+    city = models.CharField(max_length=100, blank=True, verbose_name="Город")
     avatar = models.ImageField(
-        upload_to="avatars/",  
-        blank=True,
-        null=True,
-        verbose_name="Аватарка"
+        upload_to="avatars/", blank=True, null=True, verbose_name="Аватарка"
     )
 
     # Меняем логику авторизации Django: теперь USERNAME_FIELD — это email
