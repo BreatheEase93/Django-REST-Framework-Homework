@@ -27,7 +27,7 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-class CustomUser(AbstractUser):
+class User(AbstractUser):
     """Кастомная модель пользователя с авторизацией по Email."""
 
     # Отключаем дефолтное поле username, так как логином будет email

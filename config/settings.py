@@ -4,7 +4,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # Указываем Django использовать нашу кастомную модель пользователя
-AUTH_USER_MODEL = "users.CustomUser"
+AUTH_USER_MODEL = "users.User"
 
 # Базовая директория проекта
 BASE_DIR = Path(__file__).resolve().parent.parent
