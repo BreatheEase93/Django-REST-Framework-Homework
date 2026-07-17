@@ -3,12 +3,6 @@ from rest_framework import serializers
 from users.models import Payment, User
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ("id", "email", "phone", "city", "avatar")
-
-
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
@@ -22,3 +16,11 @@ class PaymentSerializer(serializers.ModelSerializer):
             "lesson",
         )
         read_only_fields = ("user",)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    payment_histiry = PaymentSerializer(many=True, source="payments")
+
+    class Meta:
+        model = User
+        fields = ("id", "email", "phone", "city", "avatar")
