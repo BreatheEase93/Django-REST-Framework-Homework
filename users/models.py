@@ -73,14 +73,14 @@ class Payment(models.Model):
         null=True,
         blank=True,
         on_delete=models.CASCADE,
-        verbose_name="Оплаченый курс",
+        verbose_name="Оплаченный курс",
     )
     lesson = models.ForeignKey(
         Lesson,
         null=True,
         blank=True,
         on_delete=models.CASCADE,
-        verbose_name="Оплаченый урок",
+        verbose_name="Оплаченный урок",
     )
     sum_payment = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name="Сумма оплаты"

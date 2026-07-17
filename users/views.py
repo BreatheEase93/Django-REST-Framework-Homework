@@ -1,7 +1,7 @@
 from rest_framework import generics
 
-from users.models import User
-from users.serializers import UserSerializer
+from users.models import Payment, User
+from users.serializers import PaymentSerializer, UserSerializer
 
 
 class UserCreateAPIView(generics.CreateAPIView):
@@ -37,3 +37,13 @@ class UserDestroyAPIView(generics.DestroyAPIView):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+class PaymentCreateAPIView(generics.CreateAPIView):
+    """Контроллер для создания платежа"""
+
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
