@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
+from materials.models import Course, Lesson
+
 
 class CustomUserManager(BaseUserManager):
     """Менеджер для кастомной модели пользователя, где логином является email."""
@@ -54,3 +56,50 @@ class User(AbstractUser):
 
     def __str__(self) -> str:
         return str(self.email)
+
+
+class Payment(models.Model):
+    "Класс для платежей"
+
+    user = models.ForeignKey(
+        User,
+        related_name="payments",
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь",
+    )
+    payment_date = models.DateField(verbose_name="Дата оплаты")
+    course = models.ForeignKey(
+        Course,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        verbose_name="Оплаченый курс",
+    )
+    lesson = models.ForeignKey(
+        Lesson,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        verbose_name="Оплаченый урок",
+    )
+    sum_payment = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name="Сумма оплаты"
+    )
+    PAYMENT_METHODS = [
+        ("cash", "Наличные"),
+        ("transfer", "Перевод на счет"),
+    ]
+
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHODS,
+        default="cash",
+        verbose_name="Способ оплаты",
+    )
+
+    class Meta:
+        verbose_name = "Платеж"
+        verbose_name_plural = "Платежи"
+
+    def __str__(self) -> str:
+        return f"{self.user} Дата: {self.payment_date}, cумма: {self.sum_payment}"
