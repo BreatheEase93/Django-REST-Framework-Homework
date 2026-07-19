@@ -21,6 +21,20 @@ class PaymentSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     payment_history = PaymentSerializer(many=True, read_only=True, source="payments")
 
+    def get_fields(self):
+        fields = super().get_fields()
+        request = self.context.get("request")
+
+        if request and request.user.is_authenticated:
+            if request.user.is_superuser:
+                return fields
+            if request.user != self.instance:
+                fields.pop("payment_history", None)
+                fields.pop("password", None)
+                fields.pop("last_name", None)
+
+        return fields
+
     class Meta:
         model = User
-        fields = ("id", "email", "phone", "city", "avatar", "payment_history")
+        fields = "__all__"

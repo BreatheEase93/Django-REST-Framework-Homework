@@ -8,10 +8,18 @@ class UserPermissionsAll(permissions.BasePermission):
             return True
         # Разрешить только чтение и изменение только для модераторов
         if request.user.groups.filter(name="moderators").exists():
-            return request.method in ("GET", "PUT", "PATCH")
+            return request.method in ("GET", "HEAD", "OPTIONS", "PUT", "PATCH")
         # Разрешить чтение и создание только для авторизованных пользователей
         if request.user.is_authenticated:
-            return request.method in ("GET", "POST", "PUT", "PATCH", "DELETE")
+            return request.method in (
+                "GET",
+                "HEAD",
+                "OPTIONS",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+            )
 
         else:
             return False
