@@ -1,0 +1,50 @@
+[
+{
+  "model": "materials.course",
+  "pk": 1,
+  "fields": {
+    "title": "Python Basic",
+    "preview": "",
+    "description": "Введение в Python"
+  }
+},
+{
+  "model": "materials.course",
+  "pk": 2,
+  "fields": {
+    "title": "Django",
+    "preview": "",
+    "description": "Веб-фреймворк"
+  }
+},
+{
+  "model": "materials.lesson",
+  "pk": 1,
+  "fields": {
+    "course": 1,
+    "title": "Установка Python",
+    "description": "Как скачать и установить",
+    "video_url": ""
+  }
+},
+{
+  "model": "materials.lesson",
+  "pk": 2,
+  "fields": {
+    "course": 1,
+    "title": "Переменные",
+    "description": "Что такое переменные",
+    "video_url": ""
+  }
+},
+{
+  "model": "materials.lesson",
+  "pk": 3,
+  "fields": {
+    "course": 2,
+    "title": "MVC архитектура",
+    "description": "Основы Django",
+    "video_url": ""
+  }
+}
+]
