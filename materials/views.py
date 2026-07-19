@@ -13,6 +13,15 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     permission_classes = [UserPermissionsAll]
 
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser or user.groups.filter(name="moderators").exists():
+            return Course.objects.all()
+        return Course.objects.filter(author=user)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
 
 # CRUD для Уроков с использованием Generic-классов
 class LessonCreateAPIView(generics.CreateAPIView):
@@ -22,6 +31,9 @@ class LessonCreateAPIView(generics.CreateAPIView):
     serializer_class = LessonSerializer
     permission_classes = [UserPermissionsAll]
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
 
 class LessonListAPIView(generics.ListAPIView):
     """Контроллер для получения списка уроков"""
@@ -29,6 +41,12 @@ class LessonListAPIView(generics.ListAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [UserPermissionsAll]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser or user.groups.filter(name="moderators").exists():
+            return Lesson.objects.all()
+        return Lesson.objects.filter(author=user)
 
 
 class LessonRetrieveAPIView(generics.RetrieveAPIView):
