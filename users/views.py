@@ -1,5 +1,6 @@
 from rest_framework import generics
 from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from users.models import Payment, User
 from users.serializers import PaymentSerializer, UserSerializer
@@ -10,6 +11,7 @@ class UserCreateAPIView(generics.CreateAPIView):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [AllowAny]
 
 
 class UserListAPIView(generics.ListAPIView):
@@ -17,6 +19,7 @@ class UserListAPIView(generics.ListAPIView):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class UserRetrieveAPIView(generics.RetrieveAPIView):
@@ -24,6 +27,7 @@ class UserRetrieveAPIView(generics.RetrieveAPIView):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class UserUpdateAPIView(generics.UpdateAPIView):
@@ -31,6 +35,7 @@ class UserUpdateAPIView(generics.UpdateAPIView):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class UserDestroyAPIView(generics.DestroyAPIView):
@@ -38,6 +43,7 @@ class UserDestroyAPIView(generics.DestroyAPIView):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class PaymentCreateAPIView(generics.CreateAPIView):
@@ -45,6 +51,7 @@ class PaymentCreateAPIView(generics.CreateAPIView):
 
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -56,6 +63,7 @@ class PaymentListAPIView(generics.ListAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
     filter_backends = [SearchFilter, OrderingFilter]
-    search_fields = ["course_title", "lesson_title", "payment_method"]
+    permission_classes = [IsAuthenticated]
+    search_fields = ["course__title", "lesson__title", "payment_method"]
     ordering_fields = ["payment_date"]
     ordering = ["-payment_date"]
