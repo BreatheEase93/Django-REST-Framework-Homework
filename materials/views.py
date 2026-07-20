@@ -3,6 +3,7 @@ from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from materials.models import Course, Lesson, Subscription
+from materials.paginators import MyPagination
 from materials.permissions import UserPermissionsAll
 from materials.serializers import (
     CourseSerializer,
@@ -28,6 +29,14 @@ class CourseViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+    pagination_class = MyPagination
+
+    def get(self, request):
+        queryset = Course.objects.all()
+        paginated_queryset = self.paginate_queryset(queryset)
+        serializer = CourseSerializer(paginated_queryset, many=True)
+        return self.get_paginated_response(serializer.data)
+
 
 # CRUD для Уроков с использованием Generic-классов
 class LessonCreateAPIView(generics.CreateAPIView):
@@ -47,12 +56,19 @@ class LessonListAPIView(generics.ListAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [UserPermissionsAll]
+    pagination_class = MyPagination
 
     def get_queryset(self):
         user = self.request.user
         if user.is_superuser or user.groups.filter(name="moderators").exists():
             return Lesson.objects.all()
         return Lesson.objects.filter(author=user)
+
+    def get(self, request):
+        queryset = Lesson.objects.all()
+        paginated_queryset = self.paginate_queryset(queryset)
+        serializer = LessonSerializer(paginated_queryset, many=True)
+        return self.get_paginated_response(serializer.data)
 
 
 class LessonRetrieveAPIView(generics.RetrieveAPIView):
