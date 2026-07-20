@@ -1,6 +1,7 @@
 from rest_framework import generics, viewsets
 
 from materials.models import Course, Lesson
+from materials.permissions import UserPermissionsAll
 from materials.serializers import CourseSerializer, LessonSerializer
 
 
@@ -10,6 +11,16 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+    permission_classes = [UserPermissionsAll]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser or user.groups.filter(name="moderators").exists():
+            return Course.objects.all()
+        return Course.objects.filter(author=user)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
 # CRUD для Уроков с использованием Generic-классов
@@ -18,6 +29,10 @@ class LessonCreateAPIView(generics.CreateAPIView):
 
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    permission_classes = [UserPermissionsAll]
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
 class LessonListAPIView(generics.ListAPIView):
@@ -25,6 +40,13 @@ class LessonListAPIView(generics.ListAPIView):
 
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    permission_classes = [UserPermissionsAll]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser or user.groups.filter(name="moderators").exists():
+            return Lesson.objects.all()
+        return Lesson.objects.filter(author=user)
 
 
 class LessonRetrieveAPIView(generics.RetrieveAPIView):
@@ -32,6 +54,7 @@ class LessonRetrieveAPIView(generics.RetrieveAPIView):
 
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    permission_classes = [UserPermissionsAll]
 
 
 class LessonUpdateAPIView(generics.UpdateAPIView):
@@ -39,6 +62,7 @@ class LessonUpdateAPIView(generics.UpdateAPIView):
 
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    permission_classes = [UserPermissionsAll]
 
 
 class LessonDestroyAPIView(generics.DestroyAPIView):
@@ -46,3 +70,4 @@ class LessonDestroyAPIView(generics.DestroyAPIView):
 
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+    permission_classes = [UserPermissionsAll]
