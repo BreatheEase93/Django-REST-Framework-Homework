@@ -31,12 +31,6 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     pagination_class = MyPagination
 
-    def get(self, request):
-        queryset = Course.objects.all()
-        paginated_queryset = self.paginate_queryset(queryset)
-        serializer = CourseSerializer(paginated_queryset, many=True)
-        return self.get_paginated_response(serializer.data)
-
 
 # CRUD для Уроков с использованием Generic-классов
 class LessonCreateAPIView(generics.CreateAPIView):
@@ -63,12 +57,6 @@ class LessonListAPIView(generics.ListAPIView):
         if user.is_superuser or user.groups.filter(name="moderators").exists():
             return Lesson.objects.all()
         return Lesson.objects.filter(author=user)
-
-    def get(self, request):
-        queryset = Lesson.objects.all()
-        paginated_queryset = self.paginate_queryset(queryset)
-        serializer = LessonSerializer(paginated_queryset, many=True)
-        return self.get_paginated_response(serializer.data)
 
 
 class LessonRetrieveAPIView(generics.RetrieveAPIView):
@@ -115,6 +103,7 @@ class CourseUnsubscribeAPIView(generics.DestroyAPIView):
     """Эндпоинт для отписки от курса (DELETE /courses/<id>/unsubscribe/)"""
 
     serializer_class = SubscriptionSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         # Возвращаем только подписки текущего пользователя
