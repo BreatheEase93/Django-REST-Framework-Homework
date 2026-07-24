@@ -5,7 +5,9 @@ from materials.validators import validate_video_url
 
 
 class LessonSerializer(serializers.ModelSerializer):
-    ideo_url = serializers.URLField(validators=[validate_video_url])
+    video_url = serializers.URLField(
+        validators=[validate_video_url], allow_blank=True, allow_null=True
+    )
 
     class Meta:
         model = Lesson
