@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import timedelta
 from pathlib import Path
 
@@ -36,6 +37,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "users",
     "materials",
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
@@ -81,7 +83,6 @@ DATABASES = {
 }
 
 # Для тестов используем SQLite в памяти (не требует прав PostgreSQL)
-import sys
 
 if "test" in sys.argv:
     DATABASES["default"] = {
@@ -154,4 +155,13 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
+
+SWAGGER_SETTINGS = {
+    "USE_SESSION_AUTH": False,
+    "LOGIN_URL": None,
+    "LOGOUT_URL": None,
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}
+    },
 }
