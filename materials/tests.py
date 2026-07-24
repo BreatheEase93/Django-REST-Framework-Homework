@@ -232,74 +232,54 @@ class SubscriptionTestCase(APITestCase):
             author=self.user1,
         )
 
-        # URL для подписки
-        self.subscribe_url = f"/courses/{self.course.id}/subscribe/"
-        self.unsubscribe_url = f"/courses/{self.course.id}/unsubscribe/"
+        # URL для toggle подписки
+        self.toggle_url = f"/courses/{self.course.id}/toggle/"
 
-    def test_subscribe_to_course(self):
+    def test_toggle_subscribe_to_course(self):
         """Пользователь может подписаться на курс"""
         self.client.force_authenticate(user=self.user1)
-        data = {"course": self.course.id}
-        response = self.client.post(self.subscribe_url, data, format="json")
+        response = self.client.post(self.toggle_url, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.json()["message"], "Вы подписались на курс")
         self.assertTrue(
             Subscription.objects.filter(user=self.user1, course=self.course).exists()
         )
 
-    def test_subscribe_as_different_user(self):
-        """Другой пользователь может подписаться на курс"""
-        self.client.force_authenticate(user=self.user2)
-        data = {"course": self.course.id}
-        response = self.client.post(self.subscribe_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_duplicate_subscription(self):
-        """Попытка дублирования подписки должна отклониться"""
-        self.client.force_authenticate(user=self.user1)
-        # Первая подписка
-        self.client.post(self.subscribe_url, {"course": self.course.id}, format="json")
-        # Повторная подписка
-        response = self.client.post(
-            self.subscribe_url, {"course": self.course.id}, format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_unsubscribe_from_course(self):
+    def test_toggle_unsubscribe_from_course(self):
         """Пользователь может отписаться от курса"""
         self.client.force_authenticate(user=self.user1)
         # Сначала подписываемся
-        self.client.post(self.subscribe_url, {"course": self.course.id}, format="json")
+        self.client.post(self.toggle_url, format="json")
         # Затем отписываемся
-        response = self.client.delete(self.unsubscribe_url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        response = self.client.post(self.toggle_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["message"], "Вы отписались от курса")
         self.assertFalse(
             Subscription.objects.filter(user=self.user1, course=self.course).exists()
         )
 
-    def test_unsubscribe_nonexistent(self):
-        """Отписка от несуществующей подписки должна вернуть 404"""
+    def test_toggle_switch_twice(self):
+        """Двойной toggle: подписка → отписка → повторная подписка"""
         self.client.force_authenticate(user=self.user1)
-        response = self.client.delete(self.unsubscribe_url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        # Первая подписка
+        response1 = self.client.post(self.toggle_url, format="json")
+        self.assertEqual(response1.status_code, status.HTTP_201_CREATED)
+        # Отписка
+        response2 = self.client.post(self.toggle_url, format="json")
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        # Повторная подписка
+        response3 = self.client.post(self.toggle_url, format="json")
+        self.assertEqual(response3.status_code, status.HTTP_201_CREATED)
 
-    def test_anonymous_cannot_subscribe(self):
-        """Неавторизованный пользователь не может подписаться"""
-        data = {"course": self.course.id}
-        response = self.client.post(self.subscribe_url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_anonymous_cannot_unsubscribe(self):
-        """Неавторизованный пользователь не может отписаться"""
-        response = self.client.delete(self.unsubscribe_url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def test_user_can_only_delete_own_subscription(self):
-        """Пользователь может удалить только свою подписку"""
+    def test_toggle_as_different_user(self):
+        """Другой пользователь может подписаться на тот же курс"""
         self.client.force_authenticate(user=self.user1)
-        # Пользователь 1 подписывается
-        self.client.post(self.subscribe_url, {"course": self.course.id}, format="json")
-        # Пользователь 2 НЕ подписывается на этот курс
+        self.client.post(self.toggle_url, format="json")
         self.client.force_authenticate(user=self.user2)
-        # Пользователь 2 пытается удалить подписку пользователя 1
-        response = self.client.delete(self.unsubscribe_url)
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        response = self.client.post(self.toggle_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_anonymous_cannot_toggle(self):
+        """Неавторизованный пользователь не может toggle-ить подписку"""
+        response = self.client.post(self.toggle_url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

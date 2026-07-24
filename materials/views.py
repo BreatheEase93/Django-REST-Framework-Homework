@@ -1,6 +1,6 @@
-from django.shortcuts import get_object_or_404
-from rest_framework import generics, viewsets
+from rest_framework import generics, status, viewsets
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from materials.models import Course, Lesson, Subscription
 from materials.paginators import MyPagination
@@ -83,33 +83,34 @@ class LessonDestroyAPIView(generics.DestroyAPIView):
     permission_classes = [UserPermissionsAll]
 
 
-# --- Эндпоинты для подписки ---
+# --- Эндпоинт для toggle подписки ---
 
 
-class CourseSubscribeAPIView(generics.CreateAPIView):
-    """Эндпоинт для подписки на курс (POST /courses/<id>/subscribe/)"""
-
-    serializer_class = SubscriptionSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        # Получаем ID курса из URL (например, /courses/1/subscribe/)
-        course_id = self.kwargs.get("pk")
-        # Привязываем текущего пользователя и курс
-        serializer.save(user=self.request.user, course_id=course_id)
-
-
-class CourseUnsubscribeAPIView(generics.DestroyAPIView):
-    """Эндпоинт для отписки от курса (DELETE /courses/<id>/unsubscribe/)"""
+class CourseToggleSubscriptionAPIView(generics.GenericAPIView):
+    """
+    Эндпоинт для подписки/отписки от курса.
+    POST /courses/<id>/toggle/ — создаёт подписку, если её нет,
+    или удаляет, если она есть.
+    """
 
     serializer_class = SubscriptionSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        # Возвращаем только подписки текущего пользователя
-        return Subscription.objects.filter(user=self.request.user)
+    def post(self, request, *args, **kwargs):
+        course_id = kwargs.get("pk")
+        subscription = Subscription.objects.filter(
+            user=request.user, course_id=course_id
+        ).first()
 
-    def get_object(self):
-        # Ищем конкретную подписку на курс, который указан в URL
-        course_id = self.kwargs["pk"]
-        return get_object_or_404(self.get_queryset(), course_id=course_id)
+        if subscription:
+            # Если подписка есть — удаляем
+            subscription.delete()
+            return Response(
+                {"message": "Вы отписались от курса"}, status=status.HTTP_200_OK
+            )
+
+        # Если подписки нет — создаём
+        Subscription.objects.create(user=request.user, course_id=course_id)
+        return Response(
+            {"message": "Вы подписались на курс"}, status=status.HTTP_201_CREATED
+        )

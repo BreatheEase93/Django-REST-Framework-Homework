@@ -38,12 +38,3 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         model = Subscription
         fields = ["id", "user", "course", "created_at"]
         read_only_fields = ["user", "created_at"]
-
-    def validate(self, data):
-        """Проверка на дублирование подписки"""
-        user = self.context["request"].user
-        course = data.get("course")
-        if course and user.is_authenticated:
-            if Subscription.objects.filter(user=user, course=course).exists():
-                raise serializers.ValidationError("Вы уже подписаны на этот курс")
-        return data
