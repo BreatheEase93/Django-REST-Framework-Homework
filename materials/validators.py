@@ -1,4 +1,4 @@
-import re
+from urllib.parse import urlparse
 
 from rest_framework import serializers
 
@@ -8,10 +8,9 @@ def validate_video_url(value):
     if not value:
         return value
 
-    match = re.search(r"(https?://[^\s]+)", value)
-    if match:
-        if not re.search(r"://.*youtube\.com", value):
-            raise serializers.ValidationError("Разрешены только ссылки на youtube.com")
-        return value
+    parsed = urlparse(value)
+    hostname = parsed.hostname
+    if hostname != "www.youtube.com" and hostname != "youtube.com":
+        raise serializers.ValidationError("Разрешены только ссылки на youtube.com")
     else:
         return value

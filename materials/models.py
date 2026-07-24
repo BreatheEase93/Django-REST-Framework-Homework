@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.db import models
 
+from materials.validators import validate_video_url
+
 
 class Course(models.Model):
     title = models.CharField(max_length=150, verbose_name="Название курса")
@@ -34,7 +36,9 @@ class Lesson(models.Model):
     )
     title = models.CharField(max_length=150, verbose_name="Название урока")
     description = models.TextField(blank=True, verbose_name="Описание урока")
-    video_url = models.URLField(blank=True, verbose_name="Ссылка на видео")
+    video_url = models.URLField(
+        blank=True, verbose_name="Ссылка на видео", validators=[validate_video_url]
+    )
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

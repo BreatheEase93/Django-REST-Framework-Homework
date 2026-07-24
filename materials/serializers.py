@@ -5,18 +5,11 @@ from materials.validators import validate_video_url
 
 
 class LessonSerializer(serializers.ModelSerializer):
+    ideo_url = serializers.URLField(validators=[validate_video_url])
+
     class Meta:
         model = Lesson
         fields = "__all__"
-
-    def validate(self, data):
-        text_fields = ["title", "description", "video_url"]
-
-        for field_name in text_fields:
-            if field_name in data and data[field_name]:
-                validate_video_url(data[field_name])
-
-        return data
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -36,15 +29,6 @@ class CourseSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return Subscription.objects.filter(course=obj, user=request.user).exists()
         return False
-
-    def validate(self, data):
-        text_fields = ["title", "description"]
-
-        for field_name in text_fields:
-            if field_name in data and data[field_name]:
-                validate_video_url(data[field_name])
-
-        return data
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
