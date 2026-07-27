@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from materials.apps import MaterialsConfig
 from materials.views import (
+    CourseToggleSubscriptionAPIView,
     CourseViewSet,
     LessonCreateAPIView,
     LessonDestroyAPIView,
@@ -25,5 +26,11 @@ urlpatterns = [
     ),
     path(
         "lessons/delete/<int:pk>/", LessonDestroyAPIView.as_view(), name="lesson-delete"
+    ),
+    # Эндпоинт toggle подписки
+    path(
+        "courses/<int:pk>/toggle/",
+        CourseToggleSubscriptionAPIView.as_view(),
+        name="course-toggle-subscription",
     ),
 ] + router.urls

@@ -68,7 +68,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 
-# Настройка базы данных PostgreSQL из .env
+# Настройка базы данных из .env
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -79,6 +79,15 @@ DATABASES = {
         "PORT": os.getenv("DATABASE_PORT", "5432"),
     }
 }
+
+# Для тестов используем SQLite в памяти (не требует прав PostgreSQL)
+import sys
+
+if "test" in sys.argv:
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",
+    }
 
 
 # Password validation
