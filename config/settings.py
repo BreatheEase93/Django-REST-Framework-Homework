@@ -22,7 +22,9 @@ ALLOWED_HOSTS = [
     for h in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
     if h.strip()
 ]
-
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_BASE_URL = "https://api.stripe.com/v1"
 
 # Application definition
 
