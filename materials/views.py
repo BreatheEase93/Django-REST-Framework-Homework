@@ -28,12 +28,12 @@ class CourseViewSet(viewsets.ModelViewSet):
         return Course.objects.filter(author=user)
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-        send_notification_task.delay(serializer.validated_data["id"])
+        course = serializer.save(author=self.request.user)
+        send_notification_task.delay(course.id)
 
     def perform_update(self, serializer):
-        serializer.save()
-        send_notification_task.delay(serializer.validated_data["id"])
+        course = serializer.save()
+        send_notification_task.delay(course.id)
 
     pagination_class = MyPagination
 
@@ -47,8 +47,8 @@ class LessonCreateAPIView(generics.CreateAPIView):
     permission_classes = [UserPermissionsAll]
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-        send_notification_task.delay(serializer.validated_data["id"])
+        lesson = serializer.save(author=self.request.user)
+        send_notification_task.delay(lesson.course.id)
 
 
 class LessonListAPIView(generics.ListAPIView):
