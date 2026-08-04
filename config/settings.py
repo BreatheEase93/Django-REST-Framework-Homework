@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import timedelta
 from pathlib import Path
 
@@ -21,7 +22,9 @@ ALLOWED_HOSTS = [
     for h in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
     if h.strip()
 ]
-
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+STRIPE_BASE_URL = "https://api.stripe.com/v1"
 
 # Application definition
 
@@ -36,9 +39,12 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "users",
     "materials",
+    "drf_yasg",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -81,7 +87,6 @@ DATABASES = {
 }
 
 # Для тестов используем SQLite в памяти (не требует прав PostgreSQL)
-import sys
 
 if "test" in sys.argv:
     DATABASES["default"] = {
@@ -155,3 +160,15 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
+
+SWAGGER_SETTINGS = {
+    "USE_SESSION_AUTH": False,
+    "LOGIN_URL": None,
+    "LOGOUT_URL": None,
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}
+    },
+}
+
+# Для разработки — разрешить всё
+CORS_ALLOW_ALL_ORIGINS = True

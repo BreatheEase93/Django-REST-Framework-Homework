@@ -14,6 +14,10 @@ class PaymentSerializer(serializers.ModelSerializer):
             "payment_method",
             "course",
             "lesson",
+            "stripe_product_id",
+            "stripe_price_id",
+            "stripe_session_id",
+            "payment_url",
         )
         read_only_fields = ("user",)
 
