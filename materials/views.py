@@ -10,6 +10,7 @@ from materials.serializers import (
     LessonSerializer,
     SubscriptionSerializer,
 )
+from materials.tasks import send_notification_task
 
 
 # CRUD для Курсов с использованием Viewset
@@ -28,6 +29,11 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+        send_notification_task.delay(serializer.validated_data["id"])
+
+    def perform_update(self, serializer):
+        serializer.save()
+        send_notification_task.delay(serializer.validated_data["id"])
 
     pagination_class = MyPagination
 
@@ -42,6 +48,7 @@ class LessonCreateAPIView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+        send_notification_task.delay(serializer.validated_data["id"])
 
 
 class LessonListAPIView(generics.ListAPIView):
@@ -73,6 +80,10 @@ class LessonUpdateAPIView(generics.UpdateAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [UserPermissionsAll]
+
+    def perform_update(self, serializer):
+        lesson = serializer.save()
+        send_notification_task.delay(lesson.course.id)
 
 
 class LessonDestroyAPIView(generics.DestroyAPIView):
