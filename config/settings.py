@@ -172,3 +172,19 @@ SWAGGER_SETTINGS = {
 
 # Для разработки — разрешить всё
 CORS_ALLOW_ALL_ORIGINS = True
+
+
+# URL-адрес брокера сообщений
+CELERY_BROKER_URL = os.getenv("REDIS_URL")
+
+# URL-адрес брокера результатов, также Redis
+CELERY_RESULT_BACKEND = os.getenv("REDIS_URL")
+
+# Часовой пояс для работы Celery
+CELERY_TIMEZONE = "Australia/Tasmania"
+
+# Флаг отслеживания выполнения задач
+CELERY_TASK_TRACK_STARTED = True
+
+# Максимальное время на выполнение задачи
+CELERY_TASK_TIME_LIMIT = 30 * 60
