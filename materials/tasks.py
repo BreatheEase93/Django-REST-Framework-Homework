@@ -1,0 +1,49 @@
+from datetime import datetime, timedelta
+
+from celery import shared_task
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.cache import cache
+from django.core.mail import send_mail
+from django.utils import timezone
+
+from .models import Course
+
+User = get_user_model()
+
+
+@shared_task
+def send_notification_task(course_id):
+    cache_key = f"last_notification_{course_id}"
+    last_sent = cache.get(cache_key)
+
+    if last_sent:
+        last_time = datetime.fromtimestamp(last_sent)
+        if timezone.now() - last_time < timedelta(hours=4):
+            return  # Прошло менее 4 часов — не отправляем
+
+    try:
+        course = Course.objects.get(id=course_id)
+    except Course.DoesNotExist:
+        return  # курс удалён — ничего не делаем
+
+    users = User.objects.filter(subscriptions__course=course)
+    for user in users:
+        send_email_task.delay(user.email, course.title)
+
+    # Обновляем кэш на 4 часа (4 * 3600 секунд)
+    cache.set(cache_key, timezone.now().timestamp(), timeout=4 * 3600)
+
+
+@shared_task
+def send_email_task(user_email, course_title):
+    """Отправляе письмо с пользовотелю об изминениях в курсе"""
+    try:
+        send_mail(
+            subject="Изменения в курсе",
+            message=f"Произошли изменения в курсе: {course_title}",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user_email],
+        )
+    except Exception as e:
+        print(f"Ошибка при отправке письма пользователю {user_email}: {e}")
