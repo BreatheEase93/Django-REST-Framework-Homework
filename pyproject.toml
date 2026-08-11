@@ -7,7 +7,7 @@ authors = [
     {name = "Dmitry globa", email = "dima.globa2015@yandex.ru"}
 ]
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.14,<4.0"
 
 dependencies = [
     "django (>=6.0.5,<7.0.0)",
@@ -44,6 +44,9 @@ dependencies = [
     "uritemplate (>=4.2.0,<5.0.0)",
     "django-cors-headers (>=4.9.0,<5.0.0)",
     "requests (>=2.34.2,<3.0.0)",
+    "celery (>=5.6.3,<6.0.0)",
+    "redis (>=8.1.0,<9.0.0)",
+    "django-celery-beat (>=2.9.0,<3.0.0)",
 ]
 
 [build-system]

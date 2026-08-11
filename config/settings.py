@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "materials",
     "drf_yasg",
     "corsheaders",
+    "django_celery_beat",
 ]
 
 MIDDLEWARE = [
@@ -172,3 +173,27 @@ SWAGGER_SETTINGS = {
 
 # Для разработки — разрешить всё
 CORS_ALLOW_ALL_ORIGINS = True
+
+
+# URL-адрес брокера сообщений
+CELERY_BROKER_URL = os.getenv("REDIS_URL")
+
+# URL-адрес брокера результатов, также Redis
+CELERY_RESULT_BACKEND = os.getenv("REDIS_URL")
+
+# Часовой пояс для работы Celery
+CELERY_TIMEZONE = "UTC"
+
+# Флаг отслеживания выполнения задач
+CELERY_TASK_TRACK_STARTED = True
+
+# Максимальное время на выполнение задачи
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+
+CELERY_BEAT_SCHEDULE = {
+    "heck-inactive-users": {
+        "task": "users.tasks.check_inactive_users",
+        "schedule": timedelta(days=1),
+    },
+}
